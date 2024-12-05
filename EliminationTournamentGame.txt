@@ -1,3 +1,4 @@
+// Backup dessa classe, FUNCIONANDO A REINTEGRAÇÃO!!! Só está bugado o terceiro lugar, foi feito mudanças e caso dê merda esse é o backup
 package me.roinujnosde.titansbattle.games;
 
 import me.roinujnosde.titansbattle.TitansBattle;
@@ -376,25 +377,12 @@ public class EliminationTournamentGame extends Game {
         if (winnerGroupDeadPlayers == null || winnerGroupDeadPlayers.isEmpty()) {
             return;
         }
-    
-        // Verifica se estamos na disputa do terceiro lugar, pois quem morreu antes da disputa de terceiro não é reintegrado normalmente por reconhecer como derrota
-        if (battleForThirdPlace) {
-            
-            participants.addAll(waitingThirdPlace);
-            waitingThirdPlace.forEach(warrior -> {
-                Bukkit.getLogger().info("[Duplinhas] Reintegrando jogador para a disputa do terceiro lugar: " + warrior.getName());
-                setKit(warrior);
-                teleport(warrior, getConfig().getLobby());
-            });
-            waitingThirdPlace.clear();
-        } else {
-            participants.addAll(winnerGroupDeadPlayers);
-            winnerGroupDeadPlayers.forEach(warrior -> {
-                Bukkit.getLogger().info("[Duplinhas] Reintegrando jogador de volta a partida por sua dupla ter vencido: " + warrior.getName());
-                setKit(warrior);
-                teleport(warrior, getConfig().getLobby());
-            });
-        }
+
+        participants.addAll(winnerGroupDeadPlayers);
+        winnerGroupDeadPlayers.forEach(warrior -> {
+            setKit(warrior);
+            teleport(warrior, getConfig().getLobby());
+        });
     }
 
     private List<Warrior> getWinnerGroupDeadPlayers() {
