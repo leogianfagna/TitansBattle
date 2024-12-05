@@ -314,13 +314,9 @@ public class EliminationTournamentGame extends Game {
             playerGroupOne.clear();
             playerGroupTwo.clear();
         }
-
-        Bukkit.getLogger().warning("DEBUG DUPLINHAS: Membros do grupo 1:" + playerGroupOne);
-        Bukkit.getLogger().warning("DEBUG DUPLINHAS: Membros do grupo 2:" + playerGroupTwo);
     }
 
     private void generateDuelists() {
-        Bukkit.getLogger().warning("DEBUG DUPLINHAS: Entrou aqui no generateDuelists().");
         if (getWaitingThirdPlaceCount() == 2) {
             broadcastKey("battle_for_third_place");
             participants.addAll(waitingThirdPlace);
@@ -343,7 +339,6 @@ public class EliminationTournamentGame extends Game {
             generateDuelist(groups, groupDuelists);
         }
 
-        Bukkit.getLogger().warning("DEBUG DUPLINHAS: Chegou até o final!");
         updatePlayerGroups();
     }
 
@@ -370,8 +365,6 @@ public class EliminationTournamentGame extends Game {
             reintegrateDeadPlayers();
         }
 
-        Bukkit.getLogger().warning("DEBUG DUPLINHAS: Lista atual de participantes => " + getGroupParticipants().toString());
-
         generateDuelists();
         teleportNextDuelists();
         informOtherDuelists();
@@ -379,39 +372,29 @@ public class EliminationTournamentGame extends Game {
     }
 
     private void reintegrateDeadPlayers() {
-        Bukkit.getLogger().warning("DEBUG DUPLINHAS: Entrou na função reintegrateDeadPlayers().");
-
         List<Warrior> winnerGroupDeadPlayers = getWinnerGroupDeadPlayers();
         if (winnerGroupDeadPlayers == null || winnerGroupDeadPlayers.isEmpty()) {
-            Bukkit.getLogger().warning("Nenhum jogador do grupo vencedor para reintegrar.");
             return;
         }
 
-        // Reintegra os jogadores do grupo vencedor à partida
-        Bukkit.getLogger()
-                .warning("DEBUG DUPLINHAS: Os seguintes jogadores foram reintegrados:" + winnerGroupDeadPlayers);
         participants.addAll(winnerGroupDeadPlayers);
-
-        // Reseta o kit dos jogadores e os teleporta para o lobby ou a área de
-        // preparação
         winnerGroupDeadPlayers.forEach(warrior -> {
-            setKit(warrior); // Restaura o kit do jogador
-            teleport(warrior, getConfig().getLobby()); // Teleporta para o lobby
+            setKit(warrior);
+            teleport(warrior, getConfig().getLobby());
         });
     }
 
     private List<Warrior> getWinnerGroupDeadPlayers() {
         if (groupDuelists.isEmpty() || playerGroupOne.isEmpty() || playerGroupTwo.isEmpty()) {
-            Bukkit.getLogger().warning("Nenhuma lista ou duelo disponível para reintegração.");
             return null;
         }
 
-        // Determina o grupo vencedor com base nos duelistas
+        // Determinar o grupo vencedor com base nos duelistas
         Duel<Group> currentDuel = groupDuelists.get(0);
         Group firstGroup = currentDuel.getDuelists().get(0);
         Group secondGroup = currentDuel.getDuelists().get(1);
 
-        // Verifica qual grupo venceu com base nos participantes sobreviventes
+        // Verificar qual grupo venceu
         Group winnerGroup = null;
         if (getGroupParticipants().containsKey(firstGroup)) {
             winnerGroup = firstGroup;
@@ -420,31 +403,23 @@ public class EliminationTournamentGame extends Game {
         }
 
         if (winnerGroup == null) {
-            Bukkit.getLogger().warning("Nenhum grupo vencedor identificado.");
             return null;
         }
 
-        // Verifica qual lista pertence ao grupo vencedor
+        // Qual lista pertence ao grupo vencedor, pois ela será retornada
         List<Warrior> winnerGroupList;
         if (isMember(winnerGroup, playerGroupOne.get(0))) {
             winnerGroupList = playerGroupOne;
-            Bukkit.getLogger().warning("Grupo vencedor: playerGroupOne");
         } else if (isMember(winnerGroup, playerGroupTwo.get(0))) {
             winnerGroupList = playerGroupTwo;
-            Bukkit.getLogger().warning("Grupo vencedor: playerGroupTwo");
         } else {
-            Bukkit.getLogger().warning("Nenhuma lista pertence ao grupo vencedor.");
             return null;
         }
 
-        // Filtra apenas os jogadores que não estão na lista de participantes
+        // Filtrar apenas os jogadores que não estão na lista de participantes
         List<Warrior> deadPlayers = winnerGroupList.stream()
                 .filter(warrior -> !participants.contains(warrior))
-                .collect(Collectors.toList());
-
-        // Log da lista filtrada
-        Bukkit.getLogger().warning("Jogadores do grupo vencedor que não estão na partida: " + deadPlayers);
-        
+                .collect(Collectors.toList());        
 
         return deadPlayers;
     }
